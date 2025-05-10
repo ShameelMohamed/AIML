@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AIML</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      background-color: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    button {
+      background-color: white;
+      border: none; /* No border */
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.4rem 0.8rem;
+    }
+
+    textarea {
+      width: 80%;
+      height: 200px;
+      border: none;
+      background: white;
+      font-size: 1rem;
+      resize: vertical;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="button-container">
+    <button onclick="copyText(bfsCode)">BFS</button>
+    <button onclick="copyText(dfs)">DFS</button>
+    <button onclick="copyText(A)">A*</button>
+    <button onclick="copyText(MyA)">M/y Bounded A*</button>
+    <button onclick="copyText(NB)">Naive Bayes</button>
+    <button onclick="copyText(Bayesian)">Bayesian Networks</button>
+    <button onclick="copyText(REG)">Regression Models</button>
+    <button onclick="copyText(Decision)">Decision Tree</button>
+    <button onclick="copyText(SVM)">SVM</button>
+    <button onclick="copyText(Ensembling)">Ensembling Techniques</button>
+    <button onclick="copyText(Clustering)">Clustering</button>
+    <button onclick="copyText(EM)">EM for Clustering</button>
+    <button onclick="copyText(Neural)">Neural Network</button>
+  </div>
+
+  
+
+  <script>
+    const bfsCode = `graph = {'A': ['B', 'C'], 'B': ['D', 'E'], 'C': [], 'D': [], 'E': ['F', 'G'], 'F': [], 'G': []}
+visited = []
+queue = []
+goal_node1 = input("Enter a goal node:")
+goal_node = goal_node1.upper()
+
+def bfs(visited, graph, node, goal_node):
+    queue.append(node)
+    while queue:
+        v = queue.pop(0)
+        visited.append(v)
+        if v == goal_node:
+            print("Goal Reached =", goal_node)
+            break
+        for neighbor in graph[v]:
+            if neighbor not in visited:
+                queue.append(neighbor)
+        print("Queue =", queue)
+        print("Visited =", visited)
+
+bfs(visited, graph, 'A', goal_node)
+
+Output:
+----------
+Enter a goal node: G
+Goal Reached = G
+Queue = []
+Visited = ['A', 'B', 'C', 'D', 'E', 'F', 'G']`;
+
+const dfs=`graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': [],
+    'D': [],
+    'E': ['F', 'G'],
+    'F': [],
+    'G': []
+}
+
+visited = []
+goal_found = False
+
+def dfs(visited, graph, node, goal_node):
+    global goal_found
+    if node not in visited:
+        print(node)
+        visited.append(node)
+        if node == goal_node:
+            print("Goal Reached")
+            goal_found = True
+            return
+        for neighbor in graph[node]:
+            if not goal_found:  # Stop recursion if goal is already found
+                dfs(visited, graph, neighbor, goal_node)
+
+print("Following is the Depth First Search")
+goal_node = input("Enter a goal node: ").upper()
+
+if goal_node not in graph:
+    print("Goal node not in graph.")
+else:
+    dfs(visited, graph, 'A', goal_node)
+    if not goal_found:
+        print("Goal not found")
+Output:
+----------
+
+Following is the Depth First Search
+Enter a goal node:F
+A
+B
+D
+E
+F
+Goal Reached
+
+`;
+const A=`graph = [
+    ['S', 'E', 180, 137],
+    ['S', 'Y', 92, 250],
+    ['E', 'L', 82, 130],
+    ['E', 'A', 70, 140],
+    ['L', 'F', 210, 250],
+    ['A', 'R', 80, 85],
+    ['F', 'H', 195, 0],
+    ['R', 'C', 110, 108],
+    ['C', 'H', 100, 0]
+]
+
+# Collect all nodes
+temp = [i[0] for i in graph]
+temp1 = [i[1] for i in graph]
+nodes = set(temp).union(set(temp1))
+
+# Initialize data structures
+costs = {node: float('inf') for node in nodes}
+path = {node: "" for node in nodes}
+heuristics = {i[1]: i[3] for i in graph}
+for i in graph:
+    if i[0] not in heuristics:
+        heuristics[i[0]] = i[3]
+
+open_set = set()
+closed_set = set()
+
+def A_star(graph, costs, open_set, closed_set, cur_node):
+    if cur_node in open_set:
+        open_set.remove(cur_node)
+    closed_set.add(cur_node)
+
+    for edge in graph:
+        if edge[0] == cur_node:
+            neighbor = edge[1]
+            actual_cost = edge[2]
+            heuristic_cost = heuristics.get(neighbor, 0)
+            new_cost = costs[cur_node] + actual_cost
+
+            if new_cost + heuristic_cost < costs[neighbor] + heuristics.get(neighbor, 0):
+                costs[neighbor] = new_cost
+                path[neighbor] = path[cur_node] + '->' + neighbor if path[cur_node] else cur_node + '->' + neighbor
+                if neighbor not in closed_set:
+                    open_set.add(neighbor)
+
+    if open_set:
+        next_node = min(open_set, key=lambda x: costs[x] + heuristics.get(x, 0))
+        A_star(graph, costs, open_set, closed_set, next_node)
+
+# Input
+start_node = input("Enter start node: ").strip().upper()
+goal_node = input("Enter goal node: ").strip().upper()
+
+# Initialize
+open_set.add(start_node)
+path[start_node] = start_node
+costs[start_node] = 0
+
+# Run algorithm
+A_star(graph, costs, open_set, closed_set, start_node)
+
+# Output result
+if path[goal_node]:
+    print("Path with least cost is:", path[goal_node])
+else:
+    print("No path found to the goal node.")
+Output:
+----------
+Enter start node:S
+Enter goal node:H
+Path with least cost is: S->E->A->R->C->H
+`;
+const MyA=`import heapq
+
+def find_path(start, goal, graph):
+    to_visit = [(0, start)]
+    came_from = {start: None}
+    costs = {start: 0}
+
+    while to_visit:
+        current_tuple = heapq.heappop(to_visit)
+        current = current_tuple[1]
+
+        if current == goal:
+            path = []
+            while current is not None:
+                path.append(current)
+                current = came_from[current]
+            path.reverse()
+            return path, costs[goal]
+
+        for neighbor, cost in graph.get(current, {}).items():
+            new_cost = costs[current] + cost
+            if neighbor not in costs or new_cost < costs[neighbor]:
+                costs[neighbor] = new_cost
+                came_from[neighbor] = current
+                heapq.heappush(to_visit, (new_cost, neighbor))
+
+    return None, float('inf')  # Return default if no path found
+
+# Graph definition
+graph = {
+    'A': {'B': 2, 'D': 1},
+    'B': {'A': 2, 'C': 3, 'E': 4},
+    'C': {'B': 3, 'F': 5},
+    'D': {'A': 1, 'E': 6},
+    'E': {'B': 4, 'D': 6, 'F': 2},
+    'F': {'C': 5, 'E': 2}
+}
+
+# Run the function
+start = 'A'
+goal = 'F'
+path, cost = find_path(start, goal, graph)
+
+# Output results
+if path:
+    print("Path:", path)
+    print("Total Cost:", cost)
+else:
+    print("No path found from", start, "to", goal)
+Output:
+----------
+Path: ['A', 'B', 'E', 'F']
+Total Cost: 8
+
+`;
+const NB=`import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+dataset=pd.read_csv('Z:/aiml/ds/Social_Network_Ads.csv')
+print(dataset)
+X=dataset.iloc[:,[2,3]].values
+Y=dataset.iloc[:,-1].values
+from sklearn.model_selection import train_test_split
+X_train, X_test, Y_train,Y_test=train_test_split(X,Y,test_size=0.20,random_state=0)
+from sklearn.preprocessing import StandardScaler
+sc=StandardScaler()
+X_train=sc.fit_transform(X_train)
+X_test=sc.transform(X_test)
+from sklearn.naive_bayes import GaussianNB
+classifier=GaussianNB()
+classifier.fit(X_train,Y_train)
+Y_pred=classifier.predict(X_test)
+from sklearn.metrics import confusion_matrix,accuracy_score
+ac=accuracy_score(Y_test,Y_pred)
+cm=confusion_matrix(Y_test,Y_pred)
+print("Accuracy:",ac)
+print("Confusion matrix:",cm)
+
+
+Output:
+----------
+
+
+
+
+
+
+
+        User ID        Gender      Age     EstimatedSalary     Purchased
+0      15624510     Male        19           19000               	 0
+1      15810944     Male        35           20000            	 0
+2      15668575     Female     26          43000                       0
+3      15603246     Female     27          57000                       0
+4      15804002     Male        19          76000                        0
+..       ...                 ...              ...             ...                          ...
+395  15691863     Female     46          41000                      1
+396  15706071     Male         51          23000                     1
+397  15654296     Female     50          20000                     1
+398  15755018     Male         36          33000                     0
+399  15594041     Female     49          36000                     1
+
+[400 rows x 5 columns]
+Accuracy: 0.9125
+Confusion matrix: [[55  3]
+ [ 4 18]]
+
+`;
+const Bayesian=`from pgmpy.models import BayesianNetwork
+from pgmpy.factors.discrete import TabularCPD
+from pgmpy.inference import VariableElimination
+model = BayesianNetwork([
+    ('Burglary', 'Alarm'),
+    ('Earthquake', 'Alarm'),
+    ('Alarm', 'JohnCalls'),
+    ('Alarm', 'MaryCalls')
+])
+cpd_burglary = TabularCPD(variable='Burglary', variable_card=2, values=[[0.999], [0.001]])
+cpd_earthquake = TabularCPD(variable='Earthquake', variable_card=2, values=[[0.998], [0.002]])
+cpd_alarm = TabularCPD(variable='Alarm', variable_card=2,
+    values=[[0.999, 0.71, 0.06, 0.05], [0.001, 0.29, 0.94, 0.95]],
+    evidence=['Burglary', 'Earthquake'], evidence_card=[2, 2])
+cpd_john_calls = TabularCPD(variable='JohnCalls', variable_card=2,
+    values=[[0.95, 0.1], [0.05, 0.9]],
+    evidence=['Alarm'], evidence_card=[2])
+cpd_mary_calls = TabularCPD(variable='MaryCalls', variable_card=2,
+    values=[[0.99, 0.3], [0.01, 0.7]],
+    evidence=['Alarm'], evidence_card=[2])
+model.add_cpds(cpd_burglary, cpd_earthquake, cpd_alarm, cpd_john_calls, cpd_mary_calls)
+assert model.check_model(), "The Bayesian Network model is invalid!"
+inference = VariableElimination(model)
+result = inference.query(variables=['Burglary'], evidence={'JohnCalls': 1, 'MaryCalls': 1})
+print(result)
+
+
+Output:
+----------
+
++-------------+-----------------+
+| Burglary    |   phi(Burglary) |
++=============+=================+
+| Burglary(0) |          0.7158 |
++-------------+-----------------+
+| Burglary(1) |          0.2842 |
++-------------+-----------------+
+
+`;
+const REG=`import pandas as pd
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+dataset = pd.read_csv('Z:/aiml/ds/Social_Network_Ads.csv')
+print(dataset)
+X = dataset.iloc[:, [2, 3]].values
+y = dataset.iloc[:, -1].values
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0)
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+from sklearn.linear_model import LinearRegression  
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+from sklearn.metrics import mean_squared_error, r2_score  
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+print("Mean Squared Error:", mse)
+print("R2 Score:", r2)     
+   
+Output:
+----------
+        User ID       Gender  Age  EstimatedSalary  Purchased
+0      15624510   Male       19            19000           0
+1      15810944    Male       35            20000          0
+2      15668575    Female   26            43000          0
+3      15603246    Female   27            57000          0
+4      15804002    Male       19            76000          0
+..        ...                 ...           ...              ...               ...
+395  15691863   Female    46            41000          1
+396  15706071   Male        51            23000          1
+397  15654296   Female    50            20000          1
+398  15755018   Male        36            33000          0
+399  15594041   Female    49            36000          1
+
+[400 rows x 5 columns]
+Mean Squared Error: 0.0802826530161356
+R2 Score: 0.5973283861259657
+
+`;
+const Decision=`import pandas as pd
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.model_selection import train_test_split 
+from sklearn import metrics 
+data = pd.read_csv("Z:/AIML/diabetes.csv")
+X = data.iloc[:,[0,1,2,3,4,5,6,7]]
+y = data.iloc[:, 8] 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1) 
+clf = DecisionTreeClassifier()
+clf = clf.fit(X_train,y_train)
+y_pred = clf.predict(X_test)
+print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+clf = DecisionTreeClassifier(criterion="entropy", max_depth=3)
+clf = clf.fit(X_train,y_train)
+y_pred = clf.predict(X_test)
+print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+
+OUTPUT:
+
+Accuracy: 0.683982683982684
+Accuracy: 0.7705627705627706
+
+`;
+const SVM=`import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+data = pd.read_csv("Z:/AIML/Social_Network_Ads.csv")
+X = data.iloc[:, [2, 3]] 
+y = data.iloc[:, 4]       
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+model = SVC(kernel='linear')
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test)
+w = model.coef_[0]
+b = model.intercept_[0]
+slope = -w[0] / w[1]
+xx = np.linspace(X_test[:, 0].min(), X_test[:, 0].max(), 100)
+yy = slope * xx - b / w[1]
+plt.plot(xx, yy, color='red')
+plt.xlabel("Age")
+plt.ylabel("Estimated Salary")
+plt.title("SVM with Linear Kernel")
+plt.show()
+`;
+const Ensembling=`import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.ensemble import RandomForestClassifier, StackingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+import numpy as np
+
+# Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Define individual models
+log_clf = LogisticRegression(random_state=42)
+rnd_clf = RandomForestClassifier(n_estimators=100, random_state=42)
+svc_clf = SVC(probability=True, random_state=42)
+knn_clf = KNeighborsClassifier()
+nb_clf = GaussianNB()
+
+# Stacking Classifier
+stacking_clf = StackingClassifier(estimators=[('knn', knn_clf), ('rf', rnd_clf), ('nb', nb_clf)], final_estimator=LogisticRegression())
+
+# List of classifiers for evaluation (only the required ones)
+classifiers = [
+    ('K-Nearest Neighbors', knn_clf),
+    ('Random Forest', rnd_clf),
+    ('Naive Bayes', nb_clf),
+    ('Stacking Classifier', stacking_clf)
+]
+
+# Evaluate each classifier using cross-validation
+for name, clf in classifiers:
+    # Perform cross-validation
+    scores = cross_val_score(clf, X, y, cv=5, scoring='accuracy')
+    
+    # Calculate the mean accuracy and standard deviation
+    mean_accuracy = np.mean(scores)
+    std_accuracy = np.std(scores)
+    
+    # Print the results
+    print(f"Accuracy: {mean_accuracy:.3f} (+/- {std_accuracy:.3f}) [{name} Model]")
+
+
+
+output:
+
+Accuracy: 0.973 (+/- 0.025) [K-Nearest Neighbors Model]
+Accuracy: 0.967 (+/- 0.021) [Random Forest Model]
+Accuracy: 0.953 (+/- 0.027) [Naive Bayes Model]
+Accuracy: 0.967 (+/- 0.021) [Stacking Classifier Model]
+
+`;
+const Clustering=`import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.cluster import KMeans
+
+# Enable inline plotting
+%matplotlib inline
+
+# Set max rows for display
+pd.set_option('display.max_rows', 200)
+
+# Load the Iris dataset
+iris = load_iris()
+x = iris['data']
+y = iris['target']
+df = pd.DataFrame(x, columns=iris['feature_names'])
+df['target'] = y
+
+# Fit KMeans model
+kmeans = KMeans(n_clusters=3, max_iter=1000, random_state=42)
+kmeans.fit(x)
+
+# Add predicted labels to DataFrame
+df['KMeans Label'] = kmeans.labels_
+
+# Plot clusters
+plt.figure(figsize=(8, 6))
+plt.scatter(x[:, 0], x[:, 1], c=kmeans.labels_, s=50, cmap='viridis')
+centers = kmeans.cluster_centers_
+plt.scatter(centers[:, 0], centers[:, 1], c='black', s=200, alpha=0.5)
+plt.xlabel(iris.feature_names[0])
+plt.ylabel(iris.feature_names[1])
+plt.title("KMeans Clustering on Iris Dataset")
+plt.show()
+
+`;
+const EM=`import numpy as np
+import math
+
+x = np.array([[1, 8, 12, 7]])
+nMissing = 2
+n = x.shape[1]
+
+print("The training data:\n", x)
+print("The number of data present in x is:", n)
+
+# E Step
+print("The E step")
+meanI = np.sum(x) / (n + nMissing)
+missingValue = np.round(meanI)
+print("The mean value of the existing data is:", meanI)
+print("The missing value may be:", missingValue)
+
+meanPrev = 0
+while True:
+    meanT = meanI + (missingValue * nMissing) / (n + nMissing)
+    meanDiff = meanT - meanPrev
+    meanPrev = meanT
+    missingValue = meanT
+    print("The present mean is:", round(meanT, 3))
+    print("The mean difference:", round(meanDiff, 3))
+    if meanDiff < 0.05:
+        break
+
+x = np.append(x, np.full((1, nMissing), meanT), axis=1)
+print("The data with estimated outliers:\n", x)
+
+# M Step
+print("The M step")
+n += nMissing
+mu = np.array([[3, 2, 3, 5, 5, 5, 6]])
+sigma = np.array([[2, 3, 3, 5, 4, 3, 6]])
+
+print("The mean is:", mu)
+print("The st.dev is:", sigma)
+print("Mu Sigma logL")
+for i in range(mu.shape[1]):
+    logL = -np.sum((x - mu[0, i])**2 / (2 * sigma[0, i]**2)) \
+           - (0.5 * n * np.log(2 * math.pi)) - n * np.log(sigma[0, i])
+    print(f"{mu[0, i]} {sigma[0, i]} {round(logL, 3)}")
+
+
+output:
+
+The training data:
+ [[ 1  8 12  7]]
+The number of data present in x is: 4
+The E step
+The mean value of the existing data is: 4.666666666666667
+The missing value may be: 5.0
+The present mean is: 6.333
+The mean difference: 6.333
+The present mean is: 6.778
+The mean difference: 0.444
+The present mean is: 6.926
+The mean difference: 0.148
+The present mean is: 6.975
+The mean difference: 0.049
+The data with estimated outliers:
+ [[ 1.          8.         12.          7.          6.97530864  6.97530864]]
+The M step
+The mean is: [[3 2 3 5 5 5 6]]
+The st.dev is: [[2 3 3 5 4 3 6]]
+Mu Sigma logL
+3 2 -29.373
+2 3 -23.856
+3 3 -20.861
+5 5 -16.886
+5 4 -16.513
+5 3 -16.872
+6 6 -17.207
+
+
+`;
+const Neural=`import numpy as np
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+inputs = np.array([[0,0,1], [1,1,1], [1,0,1], [0,1,1]])
+outputs = np.array([[0,1,1,0]]).T
+
+np.random.seed(1)
+weights = 2 * np.random.random((3,1)) - 1
+print("Random starting synaptic weights:")
+print(weights)
+
+for _ in range(1):
+    output = sigmoid(np.dot(inputs, weights))
+    error = outputs - output
+    weights += np.dot(inputs.T, error * sigmoid_derivative(output))
+
+print("\nSynaptic weights after training")
+print(weights)
+print("\nOutput after training:")
+print(output)
+
+output:
+Random starting synaptic weights:
+[[-0.16595599]
+ [ 0.44064899]
+ [-0.99977125]]
+
+Synaptic weights after training
+[[ 0.12025406]
+ [ 0.50456196]
+ [-0.85063774]]
+
+Output after training:
+[[0.2689864 ]
+ [0.3262757 ]
+ [0.23762817]
+ [0.36375058]]
+
+
+
+
+
+
+
+`;
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => console.log("Copied"))
+        .catch(err => console.error("Failed to copy", err));
+    }
+  </script>
+
+</body>
+</html>
